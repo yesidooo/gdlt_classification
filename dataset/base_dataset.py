@@ -4,6 +4,7 @@ from PIL import Image
 import torch
 from torchvision.transforms import transforms
 
+
 class Cat_Dog:
     def __init__(self, dataset_name='cat_dog', dataset_path='', mode='train'):
         self.dataset_name = dataset_name
@@ -46,6 +47,7 @@ class Cat_Dog_Infer(Cat_Dog):
         img = Image.open(img_path)
         img = self.transforms(img)
         return img, img_path
+
 
 if __name__ == '__main__':
     dataset_path = '../kaggle'
