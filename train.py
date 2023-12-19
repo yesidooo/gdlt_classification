@@ -10,6 +10,7 @@ from dataset import Cat_Dog
 from model import build_classifier, build_loss
 from config import Config
 
+
 def train(cfg, train_loader, val_loader, model, loss_fun, optimizer, lr_scheduler):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model.to(device)
