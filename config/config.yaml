@@ -34,11 +34,11 @@ data:
       special:
 
 model:
-  backbone_mode:
-  loss_mode:
-  num_classes:
+  backbone:
   pretrained:
   pretrained_path:
+  num_classes:
+  loss_mode:
 
 train:
   num_works:
@@ -49,3 +49,4 @@ train:
 
 experiments:
   exp_name:
+  resume:
