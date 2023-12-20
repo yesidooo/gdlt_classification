@@ -10,9 +10,9 @@ data:
     train:
       common:
         ToPILImage:
-        ColorJitter:
-        GaussianBlur:
-        RandomAffine:
+        SRColorJitter:
+        SRGaussianBlur:
+        SRRandomAffine:
         RandomHorizontalFlip:
         RandomVerticalFlip:
         ToTensor:     # 不归一化用: PILToTensor, 同时可不用Normalize.
