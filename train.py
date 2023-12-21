@@ -6,9 +6,8 @@ import torch
 from torch.utils.data.dataloader import DataLoader
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 
-from dataset import Cat_Dog
+from dataset import BaseDataset
 from model import build_classifier, build_loss
-from config import Config
 
 
 def train(cfg, train_loader, val_loader, model, loss_fun, optimizer, lr_scheduler):
@@ -108,6 +107,7 @@ def main(exp_name):
                   optimizer=optimizer,
                   lr_scheduler=lr_scheduler)
     train(**kwargs)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

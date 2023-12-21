@@ -3,3 +3,6 @@ torchvision==0.13.1
 timm
 opencv-python
 pillow
+pandas
+scikit-learn
+tqdm

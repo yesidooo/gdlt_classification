@@ -9,7 +9,7 @@ from PIL import Image
 
 from torchvision import transforms
 
-from aug_common import *
+import aug_common
 
 
 class BaseDataset:
@@ -53,7 +53,11 @@ class BaseDataset:
     def build_transforms(aug_cfg: dict):
         trans_items = []
         for aug, cfg in aug_cfg.items():
-            trans_items.append(eval(aug)(*cfg))
+            if hasattr(aug_common, aug):
+                aug_func = getattr(aug_common, aug)
+                trans_items.append(aug_func(*cfg))
+            else:
+                raise Exception(f'{aug} not support yet')
         return transforms.Compose(trans_items)
 
     def __len__(self):

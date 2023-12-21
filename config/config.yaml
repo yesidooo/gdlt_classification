@@ -38,7 +38,9 @@ model:
   pretrained:
   pretrained_path:
   num_classes:
-  loss_mode:
+  loss_func:
+    LabelSmoothingCrossEntropy:
+
 
 train:
   num_works:
