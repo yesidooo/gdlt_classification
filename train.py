@@ -15,56 +15,9 @@ def train(cfg, train_loader, val_loader, model, loss_fun, optimizer, lr_schedule
     model.to(device)
     best_acc, best_epoch = 0.0, 0
     for epoch in range(1, cfg.max_epoch+1):
-        cur_lr = lr_scheduler.get_lr()
-        model.train()
-        train_loss, train_acc = 0.0, 0.0
-        with tqdm(total=22500, unit='img') as bar1:
-            bar1.set_description('train_epoch {}'.format(epoch))
-            for idx, data in enumerate(train_loader):
-                for key in data.keys():
-                    data[key] = data[key].to(device)
-                optimizer.zero_grad()
-                pred = model(data['img'])
-                loss = loss_fun(pred, data['label'])
-                loss.backward()
-                optimizer.step()
-                train_loss += loss.item() * cfg.batch_size
-                _, cls = torch.max(pred, dim=1)
-                correct_count = cls.eq(data['label'].data.view_as(cls))
-                acc = torch.mean(correct_count.type(torch.FloatTensor)).item()
-                train_acc += acc * cfg.batch_size
-                bar1.update(cfg.batch_size)
-                bar1.set_postfix({'lr': cur_lr, 'loss': loss.item(), 'acc': acc})
-        avg_train_loss = train_loss / (len(train_loader) * cfg.batch_size)
-        avg_train_acc = train_acc / (len(train_loader) * cfg.batch_size)
 
-        # val
-        val_loss, val_acc = 0.0, 0.0
-        y_true, y_pred = torch.tensor([]), torch.tensor([])
-        model.eval()
-        with torch.no_grad():
-            with tqdm(total=2500, unit='img') as bar2:
-                bar2.set_description('val')
-                for idx, data in enumerate(val_loader):
-                    for key in data.keys():
-                        data[key] = data[key].to(device)
-                    pred = model(data['img'])
-                    loss = loss_fun(pred, data['label'])
-                    val_loss += loss.item() * cfg.batch_size
-                    _, cls = torch.max(pred, dim=1)
-                    correct_count = cls.eq(data['label'].data.view_as(cls))
-                    acc = torch.mean(correct_count.type(torch.FloatTensor)).item()
-                    val_acc += acc * cfg.batch_size
-                    bar2.update(cfg.batch_size)
-                    bar2.set_postfix({'loss': loss.item(), 'acc': acc})
 
-                    y_true = torch.cat((y_true, data['label']), dim=0)
-                    y_pred = torch.cat((y_pred, cls), dim=0)
-        y_true, y_pred = y_true.data.numpy(), y_pred.data.numpy()
-        f1 = f1_score(y_true, y_pred, average='macro')
-        accuracy = accuracy_score(y_true, y_pred)
-        precision = precision_score(y_true, y_pred, average='macro')
-        recall = recall_score(y_true, y_pred, average='macro')
+
 
         avg_val_loss = val_loss / (len(val_loader) * cfg.batch_size)
         avg_val_acc = val_acc / (len(val_loader) * cfg.batch_size)
@@ -86,12 +39,61 @@ def train(cfg, train_loader, val_loader, model, loss_fun, optimizer, lr_schedule
         torch.save(state_dict, f'{cfg.checkpoint_path}/checkpoint_ep_{str(epoch).zfill(3)}')
 
 
-def train_one_epoch(epoch, model, loader, optimizer, loss_fn, args, device=torch.device('cuda'), lr_scheduler=None,
+def train_one_epoch(epoch, model, loader, optimizer, loss_fn, device=torch.device('cuda'), lr_scheduler=None,
         saver=None, output_dir=None, amp_autocast=suppress, loss_scaler=None, model_ema=None, mixup_fn=None,):
+    cur_lr = lr_scheduler.get_lr()
+    model.train()
+    train_loss, train_acc = 0.0, 0.0
+    with tqdm(total=22500, unit='img') as bar1:
+        bar1.set_description('train_epoch {}'.format(epoch))
+        for idx, data in enumerate(train_loader):
+            for key in data.keys():
+                data[key] = data[key].to(device)
+            optimizer.zero_grad()
+            pred = model(data['img'])
+            loss = loss_fun(pred, data['label'])
+            loss.backward()
+            optimizer.step()
+            train_loss += loss.item() * cfg.batch_size
+            _, cls = torch.max(pred, dim=1)
+            correct_count = cls.eq(data['label'].data.view_as(cls))
+            acc = torch.mean(correct_count.type(torch.FloatTensor)).item()
+            train_acc += acc * cfg.batch_size
+            bar1.update(cfg.batch_size)
+            bar1.set_postfix({'lr': cur_lr, 'loss': loss.item(), 'acc': acc})
+    avg_train_loss = train_loss / (len(train_loader) * cfg.batch_size)
+    avg_train_acc = train_acc / (len(train_loader) * cfg.batch_size)
     raise NotImplementedError()
 
 
+@torch.no_grad()
 def validate(model, loader, loss_fn, args, device=torch.device('cuda'), amp_autocast=suppress, log_suffix=''):
+    # val
+    val_loss, val_acc = 0.0, 0.0
+    y_true, y_pred = torch.tensor([]), torch.tensor([])
+    model.eval()
+    with tqdm(total=2500, unit='img') as bar2:
+        bar2.set_description('val')
+        for idx, data in enumerate(val_loader):
+            for key in data.keys():
+                data[key] = data[key].to(device)
+            pred = model(data['img'])
+            loss = loss_fun(pred, data['label'])
+            val_loss += loss.item() * cfg.batch_size
+            _, cls = torch.max(pred, dim=1)
+            correct_count = cls.eq(data['label'].data.view_as(cls))
+            acc = torch.mean(correct_count.type(torch.FloatTensor)).item()
+            val_acc += acc * cfg.batch_size
+            bar2.update(cfg.batch_size)
+            bar2.set_postfix({'loss': loss.item(), 'acc': acc})
+
+            y_true = torch.cat((y_true, data['label']), dim=0)
+            y_pred = torch.cat((y_pred, cls), dim=0)
+    y_true, y_pred = y_true.data.numpy(), y_pred.data.numpy()
+    f1 = f1_score(y_true, y_pred, average='macro')
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred, average='macro')
+    recall = recall_score(y_true, y_pred, average='macro')
     raise NotImplementedError()
 
 
