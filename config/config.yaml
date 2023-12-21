@@ -34,21 +34,30 @@ data:
       special:
 
 model:
-  backbone:
-  pretrained:
-  pretrained_path:
-  num_classes:
+  backbone: resnet50
+  pretrained: True
+  pretrained_path: None
+  num_classes: 4
   loss_func:
     LabelSmoothingCrossEntropy:
+      smoothing: 0.1
 
 
 train:
-  num_works:
-  batch_size:
-  lr:
-  weight_decay:
-  max_epoch:
+  allow_tf32: True
+  cudnn_benchmark: True
+  use_amp: True
+  use_ema: False  # 指数移动平均
+  random_seed: 0
+  warmup:
+    lr: 1e-5
+    epoch: 20
+  num_works: 4
+  batch_size: 256
+  lr: 1e-4
+  weight_decay: 1e-4
+  max_epoch: 100
 
 experiments:
-  exp_name:
-  resume:
+  exp_name: exp1
+  resume: True

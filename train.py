@@ -86,6 +86,15 @@ def train(cfg, train_loader, val_loader, model, loss_fun, optimizer, lr_schedule
         torch.save(state_dict, f'{cfg.checkpoint_path}/checkpoint_ep_{str(epoch).zfill(3)}')
 
 
+def train_one_epoch(epoch, model, loader, optimizer, loss_fn, args, device=torch.device('cuda'), lr_scheduler=None,
+        saver=None, output_dir=None, amp_autocast=suppress, loss_scaler=None, model_ema=None, mixup_fn=None,):
+    raise NotImplementedError()
+
+
+def validate(model, loader, loss_fn, args, device=torch.device('cuda'), amp_autocast=suppress, log_suffix=''):
+    raise NotImplementedError()
+
+
 def main(exp_name):
     cfg = Config()
     cfg.update_exp(exp_name)
