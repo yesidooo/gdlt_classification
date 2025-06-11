@@ -1,20 +1,40 @@
 import logging
+import os
+from datetime import datetime
 
 
-def test_log():
-    logging.basicConfig(level=logging.DEBUG, filename='log.txt', format='%(asctime)s - [%(filename)s-->line:%(lineno)d] - %(levelname)s: %(message)s')
-    logger = logging.getLogger('root')
-    format = logging.Formatter('%(asctime)s - [%(filename)s-->line:%(lineno)d] - %(levelname)s: %(message)s')
+def get_logger(log_dir, name='train'):
+    """获取日志记录器"""
+    os.makedirs(log_dir, exist_ok=True)
 
-    handle = logging.StreamHandler()
-    handle.setLevel(level=logging.INFO)
-    handle.setFormatter(fmt=format)
-    logger.addHandler(handle)
+    # 创建logger
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
 
-    logger.debug('1')
-    logger.info('2')
-    logger.error('4')
+    # 避免重复添加handler
+    if logger.handlers:
+        return logger
 
+    # 创建文件handler
+    log_file = os.path.join(log_dir, f'{name}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
 
-if __name__ == '__main__':
-    test_log()
+    # 创建控制台handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+
+    # 创建formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    # 添加handler
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    return logger
