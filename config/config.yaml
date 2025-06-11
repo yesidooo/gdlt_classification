@@ -2,62 +2,50 @@
 配置文件
 @auther: llf
 """
+
 data:
   reader: cv2  # pil or cv2
-  dataset_name:
-  dataset_path:
+  dataset_name: "my_classification_dataset"
+  dataset_path: "data/my_dataset"
   augments:
     train:
       common:
         ToPILImage:
         SRColorJitter:
+          prob: 0.5
+          brightness: 0.4
+          contrast: 0.4
+          saturation: 0.4
+          hue: 0.1
         SRGaussianBlur:
+          prob: 0.3
+          kernel_size: [3, 7]
+          sigma: [0.1, 2.0]
         SRRandomAffine:
+          prob: 0.4
+          degrees: [-15, 15]
+          translate: [0.1, 0.1]
+          scale: [0.9, 1.1]
+          shear: [-5, 5]
         RandomHorizontalFlip:
+          p: 0.5
         RandomVerticalFlip:
+          p: 0.1
         ToTensor:     # 不归一化用: PILToTensor, 同时可不用Normalize.
         Normalize:
           mean: [0.485, 0.456, 0.406]
           std: [0.229, 0.224, 0.225]
         RandomErasing:
+          p: 0.25
+          scale: [0.02, 0.33]
+          ratio: [0.3, 3.3]
       special:
         MixUp:
+          alpha: 0.2
         CutMix:
+          alpha: 1.0
 
     val:
       common:
         ToPILImage:
-        ToTensor:     # 不归一化用: PILToTensor, 同时可不用Normalize.
-        Normalize:
-          mean: [0.485, 0.456, 0.406]
-          std: [0.229, 0.224, 0.225]
-      special:
-
-model:
-  backbone: resnet50
-  pretrained: True
-  pretrained_path: None
-  num_classes: 4
-  loss_func:
-    LabelSmoothingCrossEntropy:
-      smoothing: 0.1
-
-
-train:
-  allow_tf32: True
-  cudnn_benchmark: True
-  use_amp: True
-  use_ema: False  # 指数移动平均
-  random_seed: 0
-  warmup:
-    lr: 1e-5
-    epoch: 20
-  num_works: 4
-  batch_size: 256
-  lr: 1e-4
-  weight_decay: 1e-4
-  max_epoch: 100
-
-experiments:
-  exp_name: exp1
-  resume: True
+        ToTensor:     # 不归一化用: PILToTensor, 同
